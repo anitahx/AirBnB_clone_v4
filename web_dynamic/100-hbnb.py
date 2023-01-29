@@ -12,9 +12,6 @@ import uuid
 app = Flask(__name__)
 # app.jinja_env.trim_blocks = True
 # app.jinja_env.lstrip_blocks = True
-app.url_map.strict_slashes = False
-port = 5000
-host = '0.0.0.0'
 
 
 @app.teardown_appcontext

@@ -1,74 +1,51 @@
-$('document').ready(function () {
-  const api = 'http://' + window.location.hostname;
+// Script that is executed only when DOM is loaded with jQuery
 
-  $.get(api + ':5001:/api/v1/status/', function (response) {
-    if (response.status === 'OK') {
-      $('DIV#api_status').addClass('available');
+let checked_box = {};
+$(document).ready(function () {
+    $('input:checkbox').change(function () {
+	if ($(this).is(':checked_box')) {
+	    checked_box[$(this).data('id')] = $(this).data('name');
+	}
+	else {
+	    delete checked_box[$(this).data('id')];
+	}
+	$('div.amenities h4').html(function () {
+	    let amenities = [];
+	    Object.keys(checked_box).forEach(function (key) {
+		amenities.push(checked_box[key]);
+	    });
+	    if (amenities.length === 0) {
+		return ('&nbsp');
+	    }
+	    return (amenities.join(', '));
+	});
+    });
+
+
+const apiStatus = $('DIV#api_status');
+$.ajax('http://0.0.0.0:5001/api/v1/status/').done(function (data) {
+    if (data.status === 'OK') {
+      apiStatus.addClass('available');
     } else {
-      $('DIV#api_status').removeClass('available');
+      apiStatus.removeClass('available');
     }
   });
+  
 
-   // Search when button is clicked
-  $('button').click(function () {
-    let amenityIdList = [];
-    for (let i in dict) {
-      amenityIdList.push(i);
-    }
-    let post_dict = {};
-    post_dict['amenities'] = amenityIdList;
 
-  $.ajax({
-    url: api + ':5001/api/v1/places_search/',
+$('button').click(function(){
+
+$.ajax({
     type: 'POST',
-    data: '{}',
+    url: 'http://0.0.0.0:5001/api/v1/places_search/',
     contentType: 'application/json',
-    dataType: 'json',
+    data: '{}',
     success: function (data) {
-      $('SECTION.places').append(data.map(place => {
-        return `<ARTICLE>
-                  <DIV class="title">
-                    <H2>${place.name}</H2>
-                    <DIV class="price_by_night">
-                      ${place.price_by_night}
-                    </DIV>
-                  </DIV>
-                  <DIV class="information">
-                    <DIV class="max_guest">
-                      <I class="fa fa-users fa-3x" aria-hidden="true"></I>
-                      </BR>
-                      ${place.max_guest} Guests
-                    </DIV>
-                    <DIV class="number_rooms">
-                      <I class="fa fa-bed fa-3x" aria-hidden="true"></I>
-                      </BR>
-                      ${place.number_rooms} Bedrooms
-                    </DIV>
-                    <DIV class="number_bathrooms">
-                      <I class="fa fa-bath fa-3x" aria-hidden="true"></I>
-                      </BR>
-                      ${place.number_bathrooms} Bathrooms
-                    </DIV>
-                  </DIV>
-                  <DIV class="description">
-                    ${place.description}
-                  </DIV>
-                </ARTICLE>`;
-      }));
+	for (let currentPlace of data) {
+	    $('.places').append('<article> <div class="title"> <h2>' + currentPlace.name + '</h2><div class="price_by_night">' + '$' + currentPlace.price_by_night + '</div></div> <div class="information"> <div class="max_guest"> <i class="fa fa -users fa-3x" aria-hidden="true"></i><br />' + currentPlace.max_guest + ' Guests</div><div class="number_rooms"> <i class="fa fa -users fa-3x" aria-hidden="true"></i><br />' + currentPlace.number_rooms + ' Bedrooms</div><div class="number_bathrooms"> <i class="fa fa -users fa-3x" aria-hidden="true"></i><br />' + currentPlace.number_bathrooms + ' Bathroom </div></div> <div class="user"></div><div class="description">' + '$' + currentPlace.description + '</div></article>');
+	}
     }
-  });
+});
 
-  let amenities = {};
-  $('INPUT[type="checkbox"]').change(function () {
-    if ($(this).is(':checked')) {
-      amenities[$(this).attr('data-id')] = $(this).attr('data-name');
-    } else {
-      delete amenities[$(this).attr('data-id')];
-    }
-    if (Object.values(amenities).length === 0) {
-      $('.amenities H4').html('&nbsp;');
-    } else {
-      $('.amenities H4').text(Object.values(amenities).join(', '));
-    }
-  });
+});
 });
